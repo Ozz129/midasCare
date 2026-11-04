@@ -1,0 +1,71 @@
+@import 'tailwindcss';
+@import './tokens.css';
+
+/* -------------------------------------------------------------------------- */
+/* Utilidades del sistema                                                     */
+/* -------------------------------------------------------------------------- */
+
+/* Anillo de foco visible y consistente (WCAG 2.4.7 / 2.4.11). */
+@utility focus-ring {
+  &:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+}
+
+/* Variante para superficies oscuras (sidebar, panel de marca). */
+@utility focus-ring-on-dark {
+  &:focus-visible {
+    outline: 2px solid var(--color-focus-on-dark);
+    outline-offset: 2px;
+  }
+}
+
+/* Transición estándar de estados interactivos. */
+@utility transition-interactive {
+  transition-property: color, background-color, border-color, box-shadow, opacity;
+  transition-duration: 150ms;
+  transition-timing-function: var(--ease-standard);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Base                                                                       */
+/* -------------------------------------------------------------------------- */
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-background font-sans text-body text-text antialiased;
+    font-feature-settings: 'cv11', 'ss01';
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    @apply bg-primary-soft text-text;
+  }
+
+  dialog::backdrop {
+    background-color: var(--color-overlay);
+  }
+}
+
+/* Respeto a las preferencias de movimiento reducido (WCAG 2.3.3). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

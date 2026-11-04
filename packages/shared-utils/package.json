@@ -1,0 +1,31 @@
+{
+  "name": "@care/shared-utils",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Utilidades puras (sin dependencias de framework) compartidas entre aplicaciones.",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "tsc -p tsconfig.build.json --watch --preserveWatchOutput",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@care/shared-types": "workspace:*"
+  },
+  "devDependencies": {
+    "@care/config": "workspace:*",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

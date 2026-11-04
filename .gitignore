@@ -1,0 +1,29 @@
+# Dependencias
+node_modules/
+
+# Builds
+dist/
+coverage/
+*.tsbuildinfo
+
+# Variables de entorno (solo se versionan los .env.example)
+.env
+.env.*
+!.env.example
+
+# Almacenamiento local de archivos (puede contener datos clínicos)
+# Anclado a rutas concretas: no debe ignorar src/infrastructure/storage/ (código).
+/storage/
+/apps/api/storage/
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Editor / SO
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json

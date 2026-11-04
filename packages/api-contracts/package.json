@@ -1,0 +1,29 @@
+{
+  "name": "@care/api-contracts",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Contratos públicos de la API REST de MIDAS CARE (web, backend y futuras apps móviles). Sin entidades de persistencia ni dependencias de NestJS/React.",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "tsc -p tsconfig.build.json --watch --preserveWatchOutput",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@care/shared-types": "workspace:*"
+  },
+  "devDependencies": {
+    "@care/config": "workspace:*",
+    "typescript": "catalog:"
+  }
+}

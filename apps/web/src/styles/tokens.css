@@ -1,0 +1,151 @@
+/*
+ * MIDAS CARE — Design tokens (Clinical Calm + MIDAS Gold)
+ * ----------------------------------------------------------------------------
+ * Fuente única de verdad del sistema visual. Tailwind v4 genera utilidades a
+ * partir de @theme (p. ej. --color-primary -> bg-primary, text-primary...).
+ *
+ * La paleta por defecto de Tailwind se elimina (--color-*: initial) para que los
+ * componentes SOLO puedan usar tokens semánticos: no hay `bg-teal-600` ni HEX
+ * sueltos en el código.
+ *
+ * Contraste (WCAG 2.2, verificado con la fórmula de luminancia relativa):
+ *   primary / surface ............ 5.0:1  AA texto normal (y blanco sobre primary)
+ *   primary / primary-soft ....... 4.49:1 NO para texto -> usar primary-hover (6.4:1)
+ *   text    / surface ........... 12.2:1  AAA
+ *   muted   / surface ............ 4.8:1  AA
+ *   muted   / background ......... 4.5:1  AA (límite)
+ *   muted   / surface-muted ...... 4.3:1  NO -> usar text sobre surface-muted
+ *   input-border / surface ....... 3.5:1  AA componentes (1.4.11)
+ *   gold    / navy ............... 5.3:1  AA  -> dorado como texto SOLO sobre navy
+ *   gold-dark / surface .......... 3.9:1  solo texto grande (>= 24px) o decorativo
+ *   gold    / surface ............ 2.5:1  NUNCA como texto: solo decoración
+ *   primary-on-dark / navy ....... 7.1:1  AAA (CARE sobre fondos oscuros)
+ *   success / success-soft ....... 4.4:1  NO -> usar success-strong (5.9:1)
+ *   warning / warning-soft ....... 4.8:1  AA
+ *   danger  / danger-soft ........ 5.7:1  AA
+ *   info    / info-soft .......... 5.5:1  AA
+ *
+ * El dorado es identidad de marca: NO representa estados clínicos.
+ * Distribución orientativa: 70 % neutros, 20 % verde/azul, <= 10 % dorado.
+ */
+
+@theme {
+  /* ---- Reinicio: solo tokens semánticos ---------------------------------- */
+  --color-*: initial;
+
+  /* ---- Marca ---------------------------------------------------------------- */
+  --color-primary: #137c78;
+  --color-primary-hover: #0d625f;
+  --color-primary-soft: #e8f5f1;
+  --color-primary-on-dark: #6ccfc7;
+
+  --color-navy: #18334a;
+  --color-navy-hover: #21435f;
+  --color-navy-deep: #112638;
+
+  --color-gold: #c6a052;
+  --color-gold-dark: #a47b30;
+  --color-gold-soft: #f8f1e3;
+
+  /* ---- Neutros -------------------------------------------------------------- */
+  --color-background: #f7f9fa;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f1f5f7;
+  --color-border: #e2e8ed;
+  --color-input-border: #7b8a99;
+  --color-text: #263746;
+  --color-muted: #64748b;
+  --color-white: #ffffff;
+  --color-overlay: rgb(17 38 56 / 0.5);
+
+  /* ---- Semánticos (estados) ------------------------------------------------- */
+  --color-success: #16805d;
+  --color-success-soft: #e7f5ed;
+  /* success sobre success-soft da 4.4:1; para TEXTO sobre fondo suave se usa este. */
+  --color-success-strong: #116a4d;
+  --color-warning: #996000;
+  --color-warning-soft: #fff4d6;
+  --color-danger: #b42332;
+  --color-danger-soft: #fdecef;
+  --color-info: #2563a6;
+  --color-info-soft: #eaf2fc;
+
+  /* ---- Interacción / foco --------------------------------------------------- */
+  --color-focus: #137c78;
+  --color-focus-on-dark: #6ccfc7;
+
+  /* ---- Tipografía ----------------------------------------------------------- */
+  --font-sans:
+    'Inter Variable', 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+    sans-serif;
+
+  --text-display: 2rem; /* 32px: mensajes de marca (login) */
+  --text-display--line-height: 2.5rem;
+  --text-display--letter-spacing: -0.02em;
+  --text-page-title: 1.75rem; /* 28px */
+  --text-page-title--line-height: 2.25rem;
+  --text-page-title--letter-spacing: -0.015em;
+  --text-section-title: 1.25rem; /* 20px */
+  --text-section-title--line-height: 1.75rem;
+  --text-section-title--letter-spacing: -0.01em;
+  --text-card-title: 1.0625rem; /* 17px */
+  --text-card-title--line-height: 1.5rem;
+  --text-body-lg: 1rem; /* 16px: notas clínicas extensas */
+  --text-body-lg--line-height: 1.625rem;
+  --text-body: 0.9375rem; /* 15px */
+  --text-body--line-height: 1.5rem;
+  --text-label: 0.875rem; /* 14px */
+  --text-label--line-height: 1.25rem;
+  --text-helper: 0.8125rem; /* 13px */
+  --text-helper--line-height: 1.125rem;
+  --text-caption: 0.75rem; /* 12px */
+  --text-caption--line-height: 1rem;
+
+  /* ---- Espaciado y dimensiones ---------------------------------------------- */
+  --spacing-sidebar: 16.5rem; /* 264px */
+  --spacing-header: 4rem; /* 64px */
+  --spacing-control: 2.75rem; /* 44px: altura de controles (objetivo táctil) */
+  --spacing-control-sm: 2.25rem; /* 36px */
+  --spacing-content: 75rem; /* ancho máximo del contenido */
+
+  /* ---- Radios --------------------------------------------------------------- */
+  --radius-control: 0.5rem; /* 8px: botones, inputs */
+  --radius-card: 0.75rem; /* 12px: tarjetas */
+  --radius-dialog: 1rem; /* 16px: modales */
+  --radius-pill: 9999px;
+
+  /* ---- Sombras (mínimas) ---------------------------------------------------- */
+  --shadow-card: 0 1px 2px 0 rgb(24 51 74 / 0.05);
+  --shadow-raised: 0 4px 12px -2px rgb(24 51 74 / 0.08), 0 2px 4px -2px rgb(24 51 74 / 0.06);
+  --shadow-overlay: 0 20px 40px -12px rgb(24 51 74 / 0.25);
+
+  /* ---- Movimiento ----------------------------------------------------------- */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --animate-fade-in: fade-in 150ms var(--ease-standard);
+  --animate-slide-in-left: slide-in-left 200ms var(--ease-standard);
+
+  /* ---- Breakpoints: 375 (base) · 768 · 1024 · 1280 · 1440 ------------------- */
+  --breakpoint-sm: 40rem;
+  --breakpoint-md: 48rem;
+  --breakpoint-lg: 64rem;
+  --breakpoint-xl: 80rem;
+  --breakpoint-2xl: 90rem;
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slide-in-left {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+}

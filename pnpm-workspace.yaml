@@ -1,0 +1,19 @@
+# Workspaces de MIDAS CARE.
+# apps/mobile queda fuera: todavía no contiene ninguna aplicación (ver apps/mobile/README.md).
+packages:
+  - apps/api
+  - apps/web
+  - packages/*
+
+# Scripts de instalación de dependencias (pnpm los bloquea por defecto).
+# - @parcel/watcher: usa binarios precompilados; no necesita compilar.
+# - @scarf/scarf: telemetría de swagger-ui-dist; denegada.
+allowBuilds:
+  '@parcel/watcher': false
+  '@scarf/scarf': false
+
+# Versiones compartidas entre workspaces (se referencian con "catalog:").
+catalog:
+  typescript: 6.0.3
+  '@types/node': ^24.19.2
+  vitest: ^5.1.0

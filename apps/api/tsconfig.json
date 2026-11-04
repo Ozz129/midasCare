@@ -1,0 +1,9 @@
+{
+  "extends": ["../../tsconfig.base.json", "@care/config/tsconfig/nest.json"],
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "dist",
+    "types": ["node", "jest", "multer"]
+  },
+  "include": ["src", "test"]
+}

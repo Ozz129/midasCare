@@ -1,0 +1,8 @@
+{
+  "extends": ["../../tsconfig.base.json", "@care/config/tsconfig/library.json"],
+  "compilerOptions": {
+    "noEmit": true,
+    "types": ["node"]
+  },
+  "include": ["vite.config.ts"]
+}
