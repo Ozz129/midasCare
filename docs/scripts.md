@@ -39,6 +39,41 @@ necesita para funcionar.
 
 Todos los comandos se ejecutan **desde la raíz del repositorio**.
 
+### Opción rápida: script automático
+
+```bash
+bash scripts/setup.sh            # PostgreSQL instalado en tu equipo
+bash scripts/setup.sh --docker   # PostgreSQL con Docker Compose
+# o, equivalente:  pnpm setup:local
+```
+
+El script hace todo lo de esta sección:
+
+1. Comprueba Node.js 24 y pnpm, e instala pnpm si falta.
+2. Ejecuta `pnpm install`.
+3. Crea los `.env` que falten y genera el secreto JWT y una contraseña aleatoria para la
+   base de datos.
+4. Crea el usuario `midas_care` y las bases `midas_care` y `midas_care_test`. Pide la
+   contraseña de `postgres` sin mostrarla y no la guarda.
+5. Aplica las migraciones en ambas bases.
+
+Es **idempotente**: puedes ejecutarlo de nuevo en cualquier momento (por ejemplo, tras
+bajar cambios con migraciones nuevas). Nunca borra bases de datos ni datos, y conserva el
+`DATABASE_URL` y el secreto que ya tengas en `apps/api/.env`.
+
+| Opción / variable | Efecto                                                          |
+| ----------------- | --------------------------------------------------------------- |
+| `--docker`        | Usa PostgreSQL con Docker Compose en lugar del instalado.       |
+| `--skip-install`  | No ejecuta `pnpm install`.                                      |
+| `--skip-db`       | Solo dependencias y `.env`, sin tocar la base de datos.         |
+| `PGPASSWORD=...`  | Contraseña de `postgres`, sin preguntarla (útil en scripts/CI). |
+| `PGSUPERUSER=...` | Superusuario distinto de `postgres`.                            |
+
+> En Windows, ejecútalo desde **Git Bash**. `psql` debe estar en el PATH (viene con el
+> instalador de PostgreSQL, en `C:\Program Files\PostgreSQL\<versión>\bin`).
+
+### Opción manual
+
 ```bash
 # 1. Instalar dependencias de todo el monorepo
 pnpm install

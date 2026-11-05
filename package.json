@@ -11,6 +11,7 @@
   },
   "prettier": "@care/config/prettier",
   "scripts": {
+    "setup:local": "bash scripts/setup.sh",
     "dev": "pnpm build:packages && pnpm --parallel --filter \"./packages/*\" --filter @care/api --filter @care/web run dev",
     "dev:api": "pnpm build:packages && pnpm --filter @care/api run dev",
     "dev:web": "pnpm build:packages && pnpm --filter @care/web run dev",

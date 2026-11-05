@@ -45,6 +45,17 @@ Detalle en [docs/architecture/monorepo.md](docs/architecture/monorepo.md).
 
 ## Instalación
 
+**Automática** (dependencias, `.env`, base de datos y migraciones, en un paso):
+
+```bash
+bash scripts/setup.sh            # PostgreSQL local  (o: pnpm setup:local)
+bash scripts/setup.sh --docker   # PostgreSQL con Docker
+```
+
+El script es idempotente y no borra datos. Opciones en [docs/scripts.md](docs/scripts.md#2-primera-vez-puesta-en-marcha).
+
+**Manual:**
+
 ```bash
 pnpm install
 cp apps/api/.env.example apps/api/.env
