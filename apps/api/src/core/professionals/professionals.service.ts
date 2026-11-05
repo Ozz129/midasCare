@@ -1,5 +1,6 @@
 import { type ProfessionalProfileResponse } from '@care/api-contracts';
 import { Injectable } from '@nestjs/common';
+import { type EntityManager } from 'typeorm';
 import { type ProfessionalProfile } from './entities/professional-profile.entity';
 import { ProfessionalsRepository } from './professionals.repository';
 
@@ -26,9 +27,16 @@ export class ProfessionalsService {
     return this.professionalsRepository.findByUserId(userId);
   }
 
-  /** Devuelve el perfil del usuario o lo crea con el nombre visible indicado. */
-  async getOrCreate(userId: string, defaultDisplayName: string): Promise<ProfessionalProfile> {
-    const existing = await this.professionalsRepository.findByUserId(userId);
+  /**
+   * Devuelve el perfil del usuario o lo crea con el nombre visible indicado.
+   * Con `manager`, la lectura y la posible creación ocurren dentro de esa transacción.
+   */
+  async getOrCreate(
+    userId: string,
+    defaultDisplayName: string,
+    manager?: EntityManager,
+  ): Promise<ProfessionalProfile> {
+    const existing = await this.professionalsRepository.findByUserId(userId, manager);
     if (existing) return existing;
     return this.professionalsRepository.save(
       this.professionalsRepository.create({
@@ -37,10 +45,11 @@ export class ProfessionalsService {
         licenseNumber: null,
         specialties: [],
       }),
+      manager,
     );
   }
 
-  save(profile: ProfessionalProfile): Promise<ProfessionalProfile> {
-    return this.professionalsRepository.save(profile);
+  save(profile: ProfessionalProfile, manager?: EntityManager): Promise<ProfessionalProfile> {
+    return this.professionalsRepository.save(profile, manager);
   }
 }

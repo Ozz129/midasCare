@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { type EntityManager } from 'typeorm';
 import { AuditRepository } from './audit.repository';
 
 export interface AuditEntry {
@@ -24,16 +25,20 @@ const MAX_USER_AGENT_LENGTH = 512;
 export class AuditService {
   constructor(private readonly auditRepository: AuditRepository) {}
 
-  record(entry: AuditEntry): Promise<void> {
-    return this.auditRepository.insert({
-      action: entry.action,
-      resourceType: entry.resourceType,
-      resourceId: entry.resourceId ?? null,
-      tenantId: entry.tenantId ?? null,
-      actorUserId: entry.actorUserId ?? null,
-      metadata: entry.metadata ?? {},
-      ipAddress: entry.ipAddress ?? null,
-      userAgent: entry.userAgent?.slice(0, MAX_USER_AGENT_LENGTH) ?? null,
-    });
+  /** Con `manager`, el registro se confirma o se revierte junto con esa transacción. */
+  record(entry: AuditEntry, manager?: EntityManager): Promise<void> {
+    return this.auditRepository.insert(
+      {
+        action: entry.action,
+        resourceType: entry.resourceType,
+        resourceId: entry.resourceId ?? null,
+        tenantId: entry.tenantId ?? null,
+        actorUserId: entry.actorUserId ?? null,
+        metadata: entry.metadata ?? {},
+        ipAddress: entry.ipAddress ?? null,
+        userAgent: entry.userAgent?.slice(0, MAX_USER_AGENT_LENGTH) ?? null,
+      },
+      manager,
+    );
   }
 }

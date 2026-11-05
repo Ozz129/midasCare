@@ -1,5 +1,6 @@
 import { type UserProfileResponse } from '@care/api-contracts';
 import { Injectable } from '@nestjs/common';
+import { type EntityManager } from 'typeorm';
 import { normalizeEmail } from '@care/shared-utils';
 import { type User } from './entities/user.entity';
 import { UsersRepository } from './users.repository';
@@ -22,8 +23,8 @@ export function toUserProfileResponse(user: User): UserProfileResponse {
 export class UsersService {
   constructor(private readonly usersRepository: UsersRepository) {}
 
-  findById(id: string): Promise<User | null> {
-    return this.usersRepository.findById(id);
+  findById(id: string, manager?: EntityManager): Promise<User | null> {
+    return this.usersRepository.findById(id, manager);
   }
 
   findByEmail(email: string): Promise<User | null> {
@@ -46,7 +47,8 @@ export class UsersService {
         'givenName' | 'familyName' | 'avatarStorageKey' | 'avatarMimeType' | 'avatarUpdatedAt'
       >
     >,
+    manager?: EntityManager,
   ): Promise<void> {
-    return this.usersRepository.update(id, changes);
+    return this.usersRepository.update(id, changes, manager);
   }
 }

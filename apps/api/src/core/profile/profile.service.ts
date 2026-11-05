@@ -9,6 +9,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { DataSource, type EntityManager } from 'typeorm';
 import { detectImageType } from '../../infrastructure/storage/image-type';
 import {
   STORAGE_PROVIDER,
@@ -37,6 +38,7 @@ export class ProfileService {
   private readonly logger = new Logger(ProfileService.name);
 
   constructor(
+    private readonly dataSource: DataSource,
     private readonly usersService: UsersService,
     private readonly professionalsService: ProfessionalsService,
     private readonly auditService: AuditService,
@@ -52,8 +54,24 @@ export class ProfileService {
     };
   }
 
+  /**
+   * Actualiza datos personales (User) y profesionales (ProfessionalProfile) como una
+   * sola unidad: la lectura, ambas escrituras (incluida la creación del perfil si no
+   * existía) y el registro de auditoría comparten una transacción. Si cualquier paso
+   * falla, se revierte todo y el error se propaga; nunca queda un cambio parcial.
+   */
   async update(userId: string, dto: UpdateMyProfileDto): Promise<MyProfileResponse> {
-    const user = await this.requireUser(userId);
+    await this.dataSource.transaction((manager) => this.applyUpdate(userId, dto, manager));
+    // Se lee tras el COMMIT para devolver exactamente lo que quedó persistido.
+    return this.getProfile(userId);
+  }
+
+  private async applyUpdate(
+    userId: string,
+    dto: UpdateMyProfileDto,
+    manager: EntityManager,
+  ): Promise<void> {
+    const user = await this.requireUser(userId, manager);
     const changed: string[] = [];
 
     const userChanges: Partial<Pick<User, 'givenName' | 'familyName'>> = {};
@@ -65,7 +83,7 @@ export class ProfileService {
       userChanges.familyName = dto.familyName;
       changed.push('familyName');
     }
-    await this.usersService.update(userId, userChanges);
+    await this.usersService.update(userId, userChanges, manager);
 
     const touchesProfessional =
       dto.displayName !== undefined ||
@@ -74,7 +92,7 @@ export class ProfileService {
 
     if (touchesProfessional) {
       const fullName = `${userChanges.givenName ?? user.givenName} ${userChanges.familyName ?? user.familyName}`;
-      const profile = await this.professionalsService.getOrCreate(userId, fullName);
+      const profile = await this.professionalsService.getOrCreate(userId, fullName, manager);
       if (dto.displayName !== undefined) {
         profile.displayName = dto.displayName;
         changed.push('displayName');
@@ -87,20 +105,22 @@ export class ProfileService {
         profile.specialties = dto.specialties;
         changed.push('specialties');
       }
-      await this.professionalsService.save(profile);
+      await this.professionalsService.save(profile, manager);
     }
 
     if (changed.length > 0) {
-      await this.auditService.record({
-        action: 'profile.update',
-        resourceType: 'user',
-        resourceId: userId,
-        actorUserId: userId,
-        // Solo los nombres de los campos, nunca sus valores.
-        metadata: { fields: changed },
-      });
+      await this.auditService.record(
+        {
+          action: 'profile.update',
+          resourceType: 'user',
+          resourceId: userId,
+          actorUserId: userId,
+          // Solo los nombres de los campos, nunca sus valores.
+          metadata: { fields: changed },
+        },
+        manager,
+      );
     }
-    return this.getProfile(userId);
   }
 
   async setImage(
@@ -208,8 +228,8 @@ export class ProfileService {
     };
   }
 
-  private async requireUser(userId: string): Promise<User> {
-    const user = await this.usersService.findById(userId);
+  private async requireUser(userId: string, manager?: EntityManager): Promise<User> {
+    const user = await this.usersService.findById(userId, manager);
     if (!user) throw new UnauthorizedException();
     return user;
   }
