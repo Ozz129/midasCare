@@ -53,21 +53,29 @@ El script hace todo lo de esta sección:
 2. Ejecuta `pnpm install`.
 3. Crea los `.env` que falten y genera el secreto JWT y una contraseña aleatoria para la
    base de datos.
-4. Crea el usuario `midas_care` y las bases `midas_care` y `midas_care_test`. Pide la
-   contraseña de `postgres` sin mostrarla y no la guarda.
+4. Crea el usuario `midas_care` y las bases `midas_care` y `midas_care_test`. Para eso
+   pregunta **el superusuario de PostgreSQL de ese equipo** (por defecto `postgres`) y su
+   contraseña, sin mostrarla y sin guardarla.
 5. Aplica las migraciones en ambas bases.
+
+**Dos credenciales distintas:**
+
+- **Superusuario** (por ejemplo, `postgres`): solo lo usa el script para crear el usuario y
+  las bases. Cambia de un equipo a otro y nunca se guarda.
+- **Usuario de la app** (`midas_care`): el que usa la API. Queda en `apps/api/.env` →
+  `DATABASE_URL`, un archivo que no se sube a git, así que cada equipo tiene el suyo.
 
 Es **idempotente**: puedes ejecutarlo de nuevo en cualquier momento (por ejemplo, tras
 bajar cambios con migraciones nuevas). Nunca borra bases de datos ni datos, y conserva el
 `DATABASE_URL` y el secreto que ya tengas en `apps/api/.env`.
 
-| Opción / variable | Efecto                                                          |
-| ----------------- | --------------------------------------------------------------- |
-| `--docker`        | Usa PostgreSQL con Docker Compose en lugar del instalado.       |
-| `--skip-install`  | No ejecuta `pnpm install`.                                      |
-| `--skip-db`       | Solo dependencias y `.env`, sin tocar la base de datos.         |
-| `PGPASSWORD=...`  | Contraseña de `postgres`, sin preguntarla (útil en scripts/CI). |
-| `PGSUPERUSER=...` | Superusuario distinto de `postgres`.                            |
+| Opción / variable | Efecto                                                     |
+| ----------------- | ---------------------------------------------------------- |
+| `--docker`        | Usa PostgreSQL con Docker Compose en lugar del instalado.  |
+| `--skip-install`  | No ejecuta `pnpm install`.                                 |
+| `--skip-db`       | Solo dependencias y `.env`, sin tocar la base de datos.    |
+| `PGSUPERUSER=...` | Superusuario, sin preguntarlo.                             |
+| `PGPASSWORD=...`  | Contraseña del superusuario, sin preguntarla (scripts/CI). |
 
 > En Windows, ejecútalo desde **Git Bash**. `psql` debe estar en el PATH (viene con el
 > instalador de PostgreSQL, en `C:\Program Files\PostgreSQL\<versión>\bin`).

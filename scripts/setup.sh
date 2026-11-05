@@ -23,8 +23,9 @@
 #   bash scripts/setup.sh --help
 #
 # Variables opcionales (modo local):
-#   PGSUPERUSER  (por defecto: postgres)   PGHOST (localhost)   PGPORT (5432)
-#   PGPASSWORD   contraseña del superusuario (si no, se pide de forma interactiva)
+#   PGSUPERUSER  superusuario de PostgreSQL (si no, se pregunta; por defecto: postgres)
+#   PGPASSWORD   contraseña del superusuario (si no, se pregunta sin mostrarla)
+#   PGHOST / PGPORT  servidor (por defecto, los de DATABASE_URL)
 # =============================================================================
 set -euo pipefail
 
@@ -229,7 +230,6 @@ else
   fi
 
   export PGHOST="${PGHOST:-$DB_HOST}" PGPORT="${PGPORT:-$DB_PORT}"
-  SUPERUSER="${PGSUPERUSER:-postgres}"
 
   pg_isready -h "$PGHOST" -p "$PGPORT" >/dev/null 2>&1 \
     || fail "PostgreSQL no responde en $PGHOST:$PGPORT. Inicia el servicio y repite."
@@ -240,18 +240,30 @@ else
     && PGPASSWORD="$APP_PASS" psql -U "$APP_USER" -d "$TEST_DB" -w -tAc "SELECT 1" >/dev/null 2>&1; then
     ok "El usuario '$APP_USER' y las bases '$APP_DB' y '$TEST_DB' ya existen y son accesibles"
   else
-    if [ -z "${PGPASSWORD:-}" ]; then
-      [ -t 0 ] || fail "Se necesita la contraseña de '$SUPERUSER'. Sin terminal interactiva, defínela así: PGPASSWORD=... bash scripts/setup.sh"
-      printf '  Contraseña del superusuario "%s" de PostgreSQL (no se muestra ni se guarda): ' "$SUPERUSER"
+    # Credenciales del superusuario (o de cualquier usuario con permiso para crear
+    # roles y bases). Cada equipo tiene las suyas: se preguntan y NUNCA se guardan.
+    printf '  Para crear el usuario "%s" y sus bases se necesita un superusuario de PostgreSQL.\n' "$APP_USER"
+    if [ -n "${PGSUPERUSER:-}" ]; then
+      SUPERUSER="$PGSUPERUSER"
+    elif [ -t 0 ]; then
+      read -r -p "  Superusuario de PostgreSQL [postgres]: " SUPERUSER || fail "No se pudo leer el usuario."
+      SUPERUSER="${SUPERUSER:-postgres}"
+    else
+      SUPERUSER="postgres"
+    fi
+
+    if [ -n "${PGPASSWORD:-}" ]; then
+      SUPERPASS="$PGPASSWORD"
+    else
+      [ -t 0 ] || fail "Se necesita la contraseña de '$SUPERUSER'. Sin terminal interactiva, defínela así: PGSUPERUSER=... PGPASSWORD=... bash scripts/setup.sh"
+      printf '  Contraseña de "%s" (no se muestra ni se guarda): ' "$SUPERUSER"
       read -r -s SUPERPASS || fail "No se pudo leer la contraseña."
       printf '\n'
-    else
-      SUPERPASS="$PGPASSWORD"
     fi
 
     as_super() { PGPASSWORD="$SUPERPASS" psql -U "$SUPERUSER" -d postgres -w -v ON_ERROR_STOP=1 "$@"; }
     as_super -tAc "SELECT 1" >/dev/null 2>&1 \
-      || fail "No se pudo conectar como '$SUPERUSER'. Revisa la contraseña (o define PGSUPERUSER si usas otro usuario)."
+      || fail "No se pudo conectar como '$SUPERUSER' en $PGHOST:$PGPORT. Revisa el usuario y la contraseña."
     ok "Conectado como superusuario '$SUPERUSER'"
 
     # Usuario de la aplicación: se crea o se sincroniza su contraseña con la del .env.
