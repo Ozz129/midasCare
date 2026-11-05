@@ -197,8 +197,9 @@ export class ProfileService {
     kind: ProfileImageKind,
     userId: string,
   ): Promise<{ key: string | null; mimeType: string | null }> {
+    // Para ambos tipos: un token válido de un usuario inexistente responde 401, no 404.
+    const user = await this.requireUser(userId);
     if (kind === 'avatar') {
-      const user = await this.requireUser(userId);
       return { key: user.avatarStorageKey, mimeType: user.avatarMimeType };
     }
     const profile = await this.professionalsService.findProfileByUserId(userId);
