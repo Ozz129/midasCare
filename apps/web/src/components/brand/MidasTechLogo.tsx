@@ -4,7 +4,7 @@ import { cn } from '../../utils/cn';
 export interface MidasTechLogoProps {
   /**
    * `inline`: símbolo + "Midas Tech" para superficies oscuras (navy).
-   * `badge`: el mismo conjunto dentro de una pastilla oscura, para fondos claros.
+   * `badge`: el mismo conjunto dentro de una pastilla verde (color primario, como el botón "Ingresar").
    *
    * El logotipo de MIDAS TECH está diseñado sobre negro: su dorado pierde
    * contraste sobre fondos claros, por eso allí se usa siempre la pastilla.
@@ -23,7 +23,7 @@ export function MidasTechLogo({ variant = 'inline', size = 'sm', className }: Mi
     <span
       className={cn(
         'inline-flex items-center gap-2',
-        variant === 'badge' && 'rounded-control bg-navy-deep px-3 py-2 shadow-card',
+        variant === 'badge' && 'rounded-control bg-primary px-3 py-2 shadow-card',
         className,
       )}
     >

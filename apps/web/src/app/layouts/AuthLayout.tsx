@@ -62,7 +62,7 @@ export function AuthLayout() {
             </ul>
           </div>
 
-          <MidasTechLogo className="self-start" />
+          <MidasTechLogo variant="badge" className="self-start" />
         </div>
       </aside>
 

@@ -236,8 +236,11 @@ else
   ok "PostgreSQL responde en $PGHOST:$PGPORT"
 
   # ¿Ya funciona la conexión con las credenciales de la app? Entonces no hace falta el superusuario.
-  if PGPASSWORD="$APP_PASS" psql -U "$APP_USER" -d "$APP_DB" -w -tAc "SELECT 1" >/dev/null 2>&1 \
-    && PGPASSWORD="$APP_PASS" psql -U "$APP_USER" -d "$TEST_DB" -w -tAc "SELECT 1" >/dev/null 2>&1; then
+  # Además de conectar, el usuario debe poder crear tablas en "public" (PostgreSQL >= 15).
+  can_create() {
+    [ "$(PGPASSWORD="$APP_PASS" psql -U "$APP_USER" -d "$1" -w -tAc "SELECT has_schema_privilege('public', 'CREATE')" 2>/dev/null)" = "t" ]
+  }
+  if can_create "$APP_DB" && can_create "$TEST_DB"; then
     ok "El usuario '$APP_USER' y las bases '$APP_DB' y '$TEST_DB' ya existen y son accesibles"
   else
     # Credenciales del superusuario (o de cualquier usuario con permiso para crear
@@ -283,7 +286,15 @@ SQL
 
     for DB in "$APP_DB" "$TEST_DB"; do
       if [ "$(as_super -tAc "SELECT 1 FROM pg_database WHERE datname = '$DB'")" = "1" ]; then
-        ok "Base '$DB' ya existe"
+        # En PostgreSQL >= 15 solo el dueño de la base puede crear tablas en "public":
+        # si la base la creó otro usuario, se transfiere al de la aplicación.
+        OWNER="$(as_super -tAc "SELECT pg_get_userbyid(datdba) FROM pg_database WHERE datname = '$DB'")"
+        if [ "$OWNER" != "$APP_USER" ]; then
+          as_super -q -c "ALTER DATABASE \"$DB\" OWNER TO \"$APP_USER\""
+          ok "Base '$DB' ya existía (dueño '$OWNER'): ahora pertenece a '$APP_USER'"
+        else
+          ok "Base '$DB' ya existe"
+        fi
       else
         as_super -q -c "CREATE DATABASE \"$DB\" OWNER \"$APP_USER\" ENCODING 'UTF8'"
         ok "Base '$DB' creada"
